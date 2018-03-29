@@ -1,5 +1,13 @@
 #include <Wire.h>
 #include <MPU9250.h>
+#include <SparkFun_VL6180X.h>
+
+VL6180xIdentification identification;
+#define VL6180X_ADDRESS_1 0x50
+VL6180x frontSensor(VL6180X_ADDRESS_1);
+#define VL6180X_ADDRESS_2 0x51
+VL6180x rightSensor(VL6180X_ADDRESS_2);
+
 
 bool testing = true;
 
@@ -134,27 +142,50 @@ void setup() {
   
   Wire.begin();
 
+  frontSensor.changeAddress(0x29, VL6180X_ADDRESS_1);
+  rightSensor.changeAddress(0x29, VL6180X_ADDRESS_2);
+  if(frontSensor.VL6180xInit() != 0){
+    Serial.println("FAILED TO INITALIZE FRONT SENSOR"); //Initialize device and check for errors
+  };
+  if(rightSensor.VL6180xInit() != 0){
+    Serial.println("FAILED TO INITALIZE RIGHT SENSOR"); //Initialize device and check for errors
+  };
+
+  frontSensor.VL6180xDefautSettings(); //Load default settings to get started.
+  rightSensor.VL6180xDefautSettings(); //Load default settings to get started.
+  
   myIMU.initMPU9250();
   myIMU.getAres();
   myIMU.getGres();
 }
 
 void loop() { 
-  //*
+  /*
   turnRight();
   delay(3000);
-  //*/
+  ///
   turnLeft();
   delay(1000);
-  //*/
+  ///
   halfTurn();
   delay(1000);
-  //*/
+  ///
   forward();
   delay(1000);
-  //*/
+  ///
   backward();
   delay(1000);
   //*/
+  myIMU.readGyroData(myIMU.accelCount);
+  myIMU.ax = (float)myIMU.accelCount[0] * myIMU.gRes -myIMU.gyroBias[0];
+  myIMU.ay = (float)myIMU.accelCount[1] * myIMU.gRes -myIMU.gyroBias[1];
+  myIMU.az = (float)myIMU.accelCount[2] * myIMU.gRes -myIMU.gyroBias[2];
+  Serial.println(myIMU.ay);
+
+  Serial.print("Front distance measured (mm) = ");
+  Serial.println(frontSensor.getDistance() ); 
+  Serial.print("Right distance measured (mm) = ");
+  Serial.println(rightSensor.getDistance() ); 
+  delay(100);
 }
 
