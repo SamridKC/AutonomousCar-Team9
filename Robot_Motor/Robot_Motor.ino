@@ -33,7 +33,7 @@ int pinI1 = 8;
 int pinI2 = 11;
 int pinI3 = 12;
 int pinI4 = 13;
-int spead = 140;
+int spead = 140;     // this always changes based on battery level
 
 void forward(){
   analogWrite(speedpinA, spead);//input a simulation value to set the speed
